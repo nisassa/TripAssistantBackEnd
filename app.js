@@ -37,7 +37,7 @@ app.use("/user/authentication", userAuthRoutes)
 // handle error when no route were matched
 app.use((req, res, next) => {
     const error = new Error("Not Found");
-    error.status(404);
+    res.status(404);
     next(error);
 });
 

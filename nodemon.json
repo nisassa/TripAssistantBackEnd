@@ -1,5 +1,6 @@
 {
    "env": {
-        "db_url": "mongodb://127.0.0.1:27017/tripassistant"
+        "db_url": "mongodb://127.0.0.1:27017/tripassistant",
+        "jwt_private_key": "sdfknsdkjnf534$%#4dsDSFsd" 
     }
 }
