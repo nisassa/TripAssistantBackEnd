@@ -31,7 +31,9 @@ app.use((req, res, next) => {
 
 // routes
 const userAuthRoutes = require("./api/routes/userauthentication");
+const tripRouter = require("./api/routes/tripRouter");
 
+app.use("/trip", tripRouter)
 app.use("/user/authentication", userAuthRoutes)
 
 // handle error when no route were matched

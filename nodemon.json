@@ -1,6 +1,8 @@
 {
    "env": {
         "db_url": "mongodb://127.0.0.1:27017/tripassistant",
-        "jwt_private_key": "sdfknsdkjnf534$%#4dsDSFsd" 
+        "jwt_private_key": "sdfknsdkjnf534$%#4dsDSFsd",
+        "flightStratsKey": "b180cb0177960081c3b722b4e6ab6451",
+        "flightStatsAppId": "06c34cb0" 
     }
 }
