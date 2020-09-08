@@ -5,6 +5,24 @@ const Flight = require("../models/flight")
 const mongoose = require("mongoose")
 const flightStatsApi = require("../service/flightStatsApi")
 
+exports.removeItem = async (req, res, next) => {
+    const id = req.params.id;
+    const type =  req.params.type;
+    
+    if (type == "flight") {
+        await Flight.deleteOne({ _id: id }, function (err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    res.status(200).json({
+        "status": "OK",
+        "message": "Item removed",
+    });
+}
+
 exports.addNewItem = async (req, res, next) => {
     
     const tripId = req.body.tripId
@@ -24,7 +42,7 @@ exports.addNewItem = async (req, res, next) => {
     if (trip === null) {
         trip = new Trip({
             _id: new mongoose.Types.ObjectId(),
-            name: 'New Trip',
+            name: 'Name your trip',
             _creator: user._id
         })
         trip.save().then().catch(err => {
@@ -35,9 +53,9 @@ exports.addNewItem = async (req, res, next) => {
             });
         })
     }
+    
 
     if (item.itemType == "flight") {
-
         var flightBumber = item.flightNumber.replace(/ /g,'')
         const airline = flightBumber.substring(0,2)
         const fNumber = flightBumber.substring(2)
@@ -47,7 +65,8 @@ exports.addNewItem = async (req, res, next) => {
             res.status(300).json({
                 "status": "NOK",
                 "message": "Unfortunately, we were not able to find your flight. Please double-check if you filled in the correct details of your flights.",
-                "tripId": trip._id
+                "tripId": trip._id,
+                "tripName": trip.name
             });
             return null;
         }
@@ -55,9 +74,11 @@ exports.addNewItem = async (req, res, next) => {
         // fetch flight data from API
         try {
             // flightStatsApi.fetchflightData(airline, fNumber, departureDate).then(flightDetails => {
-                // if (typeof flightDetails == 'object' && flightDetails.hasOwnProperty('data')) {
+            //     if (typeof flightDetails == 'object' && flightDetails.hasOwnProperty('data')) {
                     
-                    //const flightData = flightDetails.data[0]
+                    // const flightData = flightDetails.data[0]
+                    // console.log(flightData)
+
                     const flightData = {
                         carrierFsCode: 'BA',
                         flightNumber: '206',
@@ -70,38 +91,11 @@ exports.addNewItem = async (req, res, next) => {
                         flightEquipmentIataCode: '777',
                         isCodeshare: false,
                         isWetlease: false,
-                        serviceType: 'J',
-                        serviceClasses: [ 'R', 'F', 'J', 'Y' ],
+                        serviceType: '',
+                        serviceClasses: [],
                         trafficRestrictions: [],
-                        codeshares: [
-                          {
-                            carrierFsCode: 'AA',
-                            flightNumber: '6957',
-                            serviceType: 'J',
-                            serviceClasses: [Array],
-                            trafficRestrictions: [],
-                            referenceCode: 1608630
-                          },
-                          {
-                            carrierFsCode: 'AY',
-                            flightNumber: '5506',
-                            serviceType: 'J',
-                            serviceClasses: [Array],
-                            trafficRestrictions: [],
-                            referenceCode: 1922276
-                          },
-                          {
-                            carrierFsCode: 'EI',
-                            flightNumber: '8906',
-                            serviceType: 'J',
-                            serviceClasses: [Array],
-                            trafficRestrictions: [Array],
-                            referenceCode: 2359454
-                          }
-                        ],
-                        referenceCode: '1332-2017442--'
+                        codeshares: [],
                     };
-                    console.log(flightData);
 
                     var flight = new Flight({
                         carrierFsCode: flightData.carrierFsCode,
@@ -112,6 +106,8 @@ exports.addNewItem = async (req, res, next) => {
                         arrivalTime: flightData.arrivalTime,
                         stops: flightData.stops,
                         arrivalTerminal: flightData.arrivalTerminal,
+                        // test departure terminal
+                        departureTerminal: flightData.departureTerminal,
                         flightEquipmentIataCode: flightData.flightEquipmentIataCode,
                         isCodeshare: flightData.isCodeshare,
                         trafficRestrictions: flightData.trafficRestrictions,
@@ -119,31 +115,35 @@ exports.addNewItem = async (req, res, next) => {
                         trip: trip._id
                     })
                     
-                    flight.save().then().catch(err => console.log(err) )
-
-                    res.status(200).json({
-                        "status": "OK",
-                        "message": "Success.",
-                        "item": {
-                            itemType: 'flight',
-                            item: flight
-                        },
-                        "tripId": trip._id
-                    });
-                // } else {
-                //     res.status(300).json({
-                //         "status": "NOK",
-                //         "message": "Failed to find your flight. Please verify if you filled in the correct flight details and try again.",
-                //         "tripId": trip._id
-                //     });
-                // }
+                    flight.save().then( () => {
+                        res.status(200).json({
+                            "status": "OK",
+                            "message": "Success.",
+                            "item": {
+                                itemType: 'flight',
+                                item: flight
+                            },
+                            "tripId": trip._id,
+                            "tripName": trip.name
+                        });
+                    }).catch(err => console.log(err) )
+                    
+            //     } else {
+            //         res.status(300).json({
+            //             "status": "NOK",
+            //             "message": "Failed to find your flight. Please verify if you filled in the correct flight details and try again.",
+            //             "tripId": trip._id,
+            //             "tripName": trip.name
+            //         });
+            //     }
             // });
         } catch (error) {
             console.log(error)
             res.status(300).json({
                 "status": "NOK",
                 "message": "Failed to find your flight. Please verify if you filled in the correct flight details and try again.",
-                "tripId": trip._id
+                "tripId": trip._id,
+                "tripName": trip.name
             });
         }
     }

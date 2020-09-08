@@ -24,8 +24,12 @@ const TripSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    departureTerminal:{
+        type: String,
+        default: '',
+    },
     arrivalTerminal:{
-        type: Number,
+        type: String,
         default: '',
     },
     flightEquipmentIataCode:{
